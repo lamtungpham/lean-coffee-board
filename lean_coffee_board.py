@@ -241,6 +241,12 @@ if st.sidebar.button("Thêm thẻ trống", disabled=disabled_new_card):
     })
     save_to_firestore()
 
+# Attribution line under the add card button in sidebar
+st.sidebar.markdown(
+    "Ứng dụng này được lập trình bởi Coach Tùng Tinh Tấn với cộng sự AI, "
+    "vui lòng liên hệ số điện thoại 0833821008 để hợp tác"
+)
+
 # Columns display
 cols = st.columns(3)
 status_order = ["Cần thảo luận", "Đang thảo luận", "Hoàn thành"]
