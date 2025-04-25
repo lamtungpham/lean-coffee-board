@@ -1,5 +1,4 @@
 import streamlit as st
-# note: using experimental_set/get_query_params for compatibility with current Streamlit version
 st.set_page_config(page_title="Lean Coffee Board", page_icon="☕", layout="wide")
 import pandas as pd
 import json
@@ -36,7 +35,7 @@ if not firebase_admin._apps:
 db = firestore.client()
 
  # --- Room (board) selection via URL query param ---
-query_params = st.experimental_get_query_params()
+query_params = st.query_params
 board_id = query_params.get("board_id", [None])[0]
 
 if not board_id:
@@ -45,12 +44,12 @@ if not board_id:
     with col1:
         join_id = st.text_input("Nhập ID phòng để tham gia")
         if st.button("Tham gia") and join_id:
-            st.experimental_set_query_params(board_id=[join_id])
+            st.query_params = {"board_id": [join_id]}
             st.experimental_rerun()
     with col2:
         if st.button("Tạo phòng mới"):
             new_id = uuid.uuid4().hex[:8]
-            st.experimental_set_query_params(board_id=[new_id])
+            st.query_params = {"board_id": [new_id]}
             st.experimental_rerun()
     st.stop()  # halt until a room is selected
 
@@ -60,7 +59,7 @@ if board_id and not board_ref.get().exists:
     st.error("🚫 Phòng này chưa tồn tại. Vui lòng tạo phòng mới hoặc nhập đúng ID phòng.")
     if st.button("Quay lại"):
         # Clear the query params and rerun the app
-        st.experimental_set_query_params()
+        st.query_params = {}
         st.experimental_rerun()
     st.stop()
 
