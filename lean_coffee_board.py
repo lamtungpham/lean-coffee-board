@@ -6,8 +6,8 @@ import tempfile
 import uuid
 from urllib.parse import urlencode
 
-# --- Room (board) selection via URL query param ---
-query_params = st.experimental_get_query_params()
+ # --- Room (board) selection via URL query param ---
+query_params = st.query_params
 board_id = query_params.get("board_id", [None])[0]
 
 if not board_id:
