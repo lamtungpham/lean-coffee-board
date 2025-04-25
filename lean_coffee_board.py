@@ -117,13 +117,21 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
 # Initialize session state
-if 'current_topic' not in st.session_state:
-    st.session_state['current_topic'] = ""
 if 'max_votes' not in st.session_state:
     st.session_state['max_votes'] = 5
 if 'votes_remaining' not in st.session_state:
     st.session_state['votes_remaining'] = st.session_state['max_votes']
+
+# Load persistent topic for this board
+board_ref = db.collection("boards").document(board_id)
+board_doc = board_ref.get()
+if board_doc.exists and 'current_topic' in board_doc.to_dict():
+    current_topic = board_doc.to_dict()['current_topic']
+else:
+    current_topic = ""
+st.session_state['current_topic'] = current_topic
 
 # Load cards from Firestore for current topic
 if board_id:
@@ -195,6 +203,8 @@ with st.form(key='create_board_form'):
     create_topic = st.text_input("Chủ đề cuộc họp:", value=st.session_state['current_topic'])
     create_submit = st.form_submit_button("Bắt đầu nào!")
     if create_submit and create_topic:
+        # Persist topic to Firestore
+        board_ref.set({'current_topic': create_topic}, merge=True)
         st.session_state['current_topic'] = create_topic
         st.session_state['discussion_items'] = []
         st.session_state['votes_remaining'] = st.session_state['max_votes']
