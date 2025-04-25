@@ -6,33 +6,6 @@ import tempfile
 import uuid
 from urllib.parse import urlencode
 
- # --- Room (board) selection via URL query param ---
-query_params = st.query_params
-board_id = query_params.get("board_id", [None])[0]
-
-if not board_id:
-    st.title("🚪 Tham gia hoặc Tạo phòng Lean Coffee")
-    col1, col2 = st.columns(2)
-    with col1:
-        join_id = st.text_input("Nhập ID phòng để tham gia")
-        if st.button("Tham gia") and join_id:
-            st.query_params = {"board_id": [join_id]}
-            st.experimental_rerun()
-    with col2:
-        if st.button("Tạo phòng mới"):
-            new_id = uuid.uuid4().hex[:8]
-            st.query_params = {"board_id": [new_id]}
-            st.experimental_rerun()
-    st.stop()  # halt until a room is selected
-
-# Show current room ID and shareable link suffix
-st.sidebar.markdown(f"**ID phòng:** `{board_id}`")
-# Shareable link suffix (add to your app's URL)
-share_suffix = f"?board_id={board_id}"
-st.sidebar.markdown("Bạn có thể thêm phần này vào sau đoạn https://lean-coffee.streamlit.app/ để tham gia cùng phòng:")
-st.sidebar.code(share_suffix)
-# --- end room handling ---
-
 # Firestore and auto-refresh dependencies
 import os
 try:
@@ -60,6 +33,39 @@ if not firebase_admin._apps:
     cred = credentials.Certificate(cred_path)
     firebase_admin.initialize_app(cred)
 db = firestore.client()
+
+ # --- Room (board) selection via URL query param ---
+query_params = st.query_params
+board_id = query_params.get("board_id", [None])[0]
+
+if not board_id:
+    st.title("🚪 Tham gia hoặc Tạo phòng Lean Coffee")
+    col1, col2 = st.columns(2)
+    with col1:
+        join_id = st.text_input("Nhập ID phòng để tham gia")
+        if st.button("Tham gia") and join_id:
+            st.query_params = {"board_id": [join_id]}
+            st.experimental_rerun()
+    with col2:
+        if st.button("Tạo phòng mới"):
+            new_id = uuid.uuid4().hex[:8]
+            st.query_params = {"board_id": [new_id]}
+            st.experimental_rerun()
+    st.stop()  # halt until a room is selected
+
+# After Firestore client (db) is ready, but before showing sidebar:
+board_ref = db.collection("boards").document(board_id)
+if board_id and not board_ref.get().exists:
+    st.error("🚫 Phòng này chưa tồn tại. Vui lòng tạo phòng mới hoặc nhập đúng ID phòng.")
+    st.stop()
+
+# Show current room ID and shareable link suffix
+st.sidebar.markdown(f"**ID phòng:** `{board_id}`")
+# Shareable link suffix (add to your app's URL)
+share_suffix = f"?board_id={board_id}"
+st.sidebar.markdown("Bạn có thể thêm phần này vào sau đoạn https://lean-coffee.streamlit.app/ để tham gia cùng phòng:")
+st.sidebar.code(share_suffix)
+# --- end room handling ---
 
 
 # Auto-refresh every 5 seconds for real-time updates (if available)
@@ -125,7 +131,6 @@ if 'votes_remaining' not in st.session_state:
     st.session_state['votes_remaining'] = st.session_state['max_votes']
 
 # Load persistent topic for this board
-board_ref = db.collection("boards").document(board_id)
 board_doc = board_ref.get()
 if board_doc.exists and 'current_topic' in board_doc.to_dict():
     current_topic = board_doc.to_dict()['current_topic']
