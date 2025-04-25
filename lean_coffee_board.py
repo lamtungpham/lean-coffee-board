@@ -2,6 +2,35 @@ import streamlit as st
 import pandas as pd
 import json
 import tempfile
+import uuid
+from urllib.parse import urlencode
+
+# --- Room (board) selection via URL query param ---
+query_params = st.experimental_get_query_params()
+board_id = query_params.get("board_id", [None])[0]
+
+if not board_id:
+    st.title("🚪 Join or Create a Lean Coffee Room")
+    col1, col2 = st.columns(2)
+    with col1:
+        join_id = st.text_input("Enter Room ID to join")
+        if st.button("Join Room") and join_id:
+            st.experimental_set_query_params(board_id=join_id)
+            st.experimental_rerun()
+    with col2:
+        if st.button("Create New Room"):
+            new_id = uuid.uuid4().hex[:8]
+            st.experimental_set_query_params(board_id=new_id)
+            st.experimental_rerun()
+    st.stop()  # halt until a room is selected
+
+# Show current room ID and shareable link
+st.sidebar.markdown(f"**Room ID:** `{board_id}`")
+base_url = st.get_url().split('?')[0]
+share_url = f"{base_url}?{urlencode({'board_id': board_id})}"
+st.sidebar.markdown("Share this link to invite others:")
+st.sidebar.code(share_url)
+# --- end room handling ---
 
 # Firestore and auto-refresh dependencies
 import os
@@ -98,9 +127,9 @@ if 'votes_remaining' not in st.session_state:
     st.session_state['votes_remaining'] = st.session_state['max_votes']
 
 # Load cards from Firestore for current topic
-if 'current_topic' in st.session_state and st.session_state['current_topic']:
+if board_id:
     docs = db.collection("boards") \
-             .document(st.session_state['current_topic']) \
+             .document(board_id) \
              .collection("cards") \
              .stream()
     st.session_state['discussion_items'] = [
@@ -111,9 +140,9 @@ else:
 
 # Firestore save function
 def save_to_firestore():
-    if 'current_topic' not in st.session_state or not st.session_state['current_topic']:
+    if not board_id:
         return
-    col = db.collection("boards").document(st.session_state['current_topic']).collection("cards")
+    col = db.collection("boards").document(board_id).collection("cards")
     # Clear existing
     for doc in col.stream():
         col.document(doc.id).delete()
