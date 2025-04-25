@@ -57,9 +57,8 @@ if not board_id:
 board_ref = db.collection("boards").document(board_id)
 if board_id and not board_ref.get().exists:
     st.error("🚫 Phòng này chưa tồn tại. Vui lòng tạo phòng mới hoặc nhập đúng ID phòng.")
-    if st.button("Quay lại"):
-        st.query_params = {}  # clear room
-        st.experimental_rerun()
+    # Provide link back to reset room
+    st.markdown("[Quay lại](./)", unsafe_allow_html=True)
     st.stop()
 
 # Show current room ID and shareable link suffix
