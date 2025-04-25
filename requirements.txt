@@ -1,0 +1,6 @@
+streamlit
+pandas
+firebase-admin
+google-cloud-firestore
+streamlit-autorefresh
+streamlit-sortables
