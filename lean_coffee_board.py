@@ -1,4 +1,5 @@
 import streamlit as st
+st.set_page_config(page_title="Lean Coffee Board", page_icon="☕", layout="wide")
 import pandas as pd
 import json
 import tempfile
@@ -60,8 +61,6 @@ if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-# Configure page
-st.set_page_config(page_title="Lean Coffee Board", page_icon="☕", layout="wide")
 
 # Auto-refresh every 5 seconds for real-time updates (if available)
 if _has_autorefresh:
