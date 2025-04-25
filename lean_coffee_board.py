@@ -24,12 +24,12 @@ if not board_id:
             st.experimental_rerun()
     st.stop()  # halt until a room is selected
 
-# Show current room ID and shareable link
+# Show current room ID and shareable link suffix
 st.sidebar.markdown(f"**Room ID:** `{board_id}`")
-base_url = st.get_url().split('?')[0]
-share_url = f"{base_url}?{urlencode({'board_id': board_id})}"
-st.sidebar.markdown("Share this link to invite others:")
-st.sidebar.code(share_url)
+# Shareable link suffix (add to your app's URL)
+share_suffix = f"?board_id={board_id}"
+st.sidebar.markdown("Append this to the app URL to join the same room:")
+st.sidebar.code(share_suffix)
 # --- end room handling ---
 
 # Firestore and auto-refresh dependencies
