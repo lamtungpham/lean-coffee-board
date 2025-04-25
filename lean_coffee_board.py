@@ -50,11 +50,16 @@ if not board_id:
         if st.button("Tạo phòng mới"):
             new_id = uuid.uuid4().hex[:8]
             st.query_params = {"board_id": [new_id]}
+            st.session_state['just_created'] = True
             st.experimental_rerun()
     st.stop()  # halt until a room is selected
 
 # After Firestore client (db) is ready, but before showing sidebar:
 board_ref = db.collection("boards").document(board_id)
+# Auto-create board document if just created
+if st.session_state.get('just_created', False) and board_id:
+    db.collection("boards").document(board_id).set({"current_topic": ""})
+    st.session_state['just_created'] = False
 if board_id and not board_ref.get().exists:
     st.error("🚫 Phòng này chưa tồn tại. Vui lòng tạo phòng mới hoặc nhập đúng ID phòng.")
     if st.button("Quay lại"):
