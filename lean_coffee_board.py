@@ -59,7 +59,7 @@ if board_id and not board_ref.get().exists:
     st.error("🚫 Phòng này chưa tồn tại. Vui lòng tạo phòng mới hoặc nhập đúng ID phòng.")
     if st.button("Quay lại"):
         # Clear the query params and rerun the app
-        st.experimental_set_query_params()
+        st.set_query_params()
         st.experimental_rerun()
     st.stop()
 
@@ -124,6 +124,11 @@ st.markdown("""
 .card-wrapper .stTextArea { margin-top: 0 !important; }
 /* Hide apply hint */
 .stTextArea > div > div + div { display: none !important; }
+
+/* Hide Streamlit deprecation warnings */
+[data-testid="stDeprecationWarning"] {
+  display: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
