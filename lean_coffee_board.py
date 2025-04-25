@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import json
+import tempfile
 
 # Firestore and auto-refresh dependencies
 import os
@@ -17,12 +19,14 @@ except ModuleNotFoundError:
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# Initialize Firebase Admin SDK
+# Initialize Firebase Admin SDK from Streamlit Secrets
 if not firebase_admin._apps:
-    cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-    if not cred_path:
-        st.error("Bạn phải đặt biến môi trường GOOGLE_APPLICATION_CREDENTIALS trỏ tới file JSON service account.")
-        st.stop()
+    # Load JSON content from secrets
+    service_account_info = json.loads(st.secrets["FIREBASE_SERVICE_ACCOUNT"])
+    # Write to a temp file for credentials.Certificate
+    with tempfile.NamedTemporaryFile(mode="w+", delete=False) as tf:
+        json.dump(service_account_info, tf)
+        cred_path = tf.name
     cred = credentials.Certificate(cred_path)
     firebase_admin.initialize_app(cred)
 db = firestore.client()
