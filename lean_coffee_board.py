@@ -11,25 +11,25 @@ query_params = st.experimental_get_query_params()
 board_id = query_params.get("board_id", [None])[0]
 
 if not board_id:
-    st.title("🚪 Join or Create a Lean Coffee Room")
+    st.title("🚪 Tham gia hoặc Tạo phòng Lean Coffee")
     col1, col2 = st.columns(2)
     with col1:
-        join_id = st.text_input("Enter Room ID to join")
-        if st.button("Join Room") and join_id:
+        join_id = st.text_input("Nhập ID phòng để tham gia")
+        if st.button("Tham gia") and join_id:
             st.query_params = {"board_id": [join_id]}
             st.experimental_rerun()
     with col2:
-        if st.button("Create New Room"):
+        if st.button("Tạo phòng mới"):
             new_id = uuid.uuid4().hex[:8]
             st.query_params = {"board_id": [new_id]}
             st.experimental_rerun()
     st.stop()  # halt until a room is selected
 
 # Show current room ID and shareable link suffix
-st.sidebar.markdown(f"**Room ID:** `{board_id}`")
+st.sidebar.markdown(f"**ID phòng:** `{board_id}`")
 # Shareable link suffix (add to your app's URL)
 share_suffix = f"?board_id={board_id}"
-st.sidebar.markdown("Append this to the app URL to join the same room:")
+st.sidebar.markdown("Bạn có thể thêm phần này vào sau đoạn https://lean-coffee.streamlit.app/ để tham gia cùng phòng:")
 st.sidebar.code(share_suffix)
 # --- end room handling ---
 
