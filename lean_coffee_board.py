@@ -15,12 +15,12 @@ if not board_id:
     with col1:
         join_id = st.text_input("Enter Room ID to join")
         if st.button("Join Room") and join_id:
-            st.experimental_set_query_params(board_id=join_id)
+            st.query_params = {"board_id": [join_id]}
             st.experimental_rerun()
     with col2:
         if st.button("Create New Room"):
             new_id = uuid.uuid4().hex[:8]
-            st.experimental_set_query_params(board_id=new_id)
+            st.query_params = {"board_id": [new_id]}
             st.experimental_rerun()
     st.stop()  # halt until a room is selected
 
