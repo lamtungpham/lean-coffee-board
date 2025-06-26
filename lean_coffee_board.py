@@ -158,9 +158,13 @@ if board_id:
              .document(board_id) \
              .collection("cards") \
              .stream()
-    st.session_state['discussion_items'] = [
-        {"item": doc.id, **doc.to_dict()} for doc in docs
-    ]
+    # Preserve the order of the cards by sorting the documents by their
+    # numeric ID. Each document ID is saved as an integer string when
+    # writing to Firestore.
+    docs = sorted(docs, key=lambda d: int(d.id))
+    # Load the stored fields directly instead of using the document ID as
+    # the card content (which previously overwrote the real text).
+    st.session_state['discussion_items'] = [doc.to_dict() for doc in docs]
 else:
     st.session_state['discussion_items'] = []
 
